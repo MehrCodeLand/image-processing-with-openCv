@@ -30,7 +30,7 @@ ret, triangle = cv.threshold(triangle, 120 , 255 , cv.THRESH_BINARY_INV)
 # filtring
 kernel_sharp = np.array([
     [0 , -1, 0],
-    [-1, 4, -1],
+    [-1, 5, -1],
     [0 , -1, 0]
 ])
 sharp = cv.filter2D(half_image , -1 , kernel_sharp)
@@ -76,8 +76,21 @@ draw_image = cv.drawMatches(batman1 , kpBat1 , batman2 , kpBat2 , matches , None
 
 
 
+# image segmentation 
+
+r , thresh = cv.threshold(half_image , np.mean(half_image) , 255 , cv.THRESH_BINARY_INV)
+
+seg_contour  , h= cv.findContours(thresh , cv.RETR_LIST , cv.CHAIN_APPROX_SIMPLE)
+seg_cnt = sorted( seg_contour, key=cv.contourArea)
+
+mask = np.zeros((half_image.shape[0] , half_image.shape[1]) , dtype='uint8' )
+masked = cv.drawContours(mask , [seg_cnt] , 0 , (255,255,255) , -1)
+
+
+
+
 # show image
-cv.imshow('dilat' , draw_image)
+cv.imshow('dilat' , masked)
 
 cv.waitKey()
 cv.destroyAllWindows()
