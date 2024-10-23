@@ -78,19 +78,36 @@ draw_image = cv.drawMatches(batman1 , kpBat1 , batman2 , kpBat2 , matches , None
 
 # image segmentation 
 
-r , thresh = cv.threshold(half_image , np.mean(half_image) , 255 , cv.THRESH_BINARY_INV)
+image_resize = cv.cvtColor(image , cv.COLOR_BGR2GRAY)
+r, thresh = cv.threshold(half_image , np.mean(half_image) , 255 , cv.THRESH_BINARY_INV)
+seg_con, h = cv.findContours(thresh, cv.RETR_LIST , cv.CHAIN_APPROX_SIMPLE)
+seg_snt = sorted(seg_con , key=cv.contourArea)
 
-seg_contour  , h= cv.findContours(thresh , cv.RETR_LIST , cv.CHAIN_APPROX_SIMPLE)
-seg_cnt = sorted( seg_contour, key=cv.contourArea)
-
-mask = np.zeros((half_image.shape[0] , half_image.shape[1]) , dtype='uint8' )
-masked = cv.drawContours(mask , [seg_cnt] , 0 , (255,255,255) , -1)
-
-
+mask = np.zeros((half_image.shape[0] , half_image.shape[1]), dtype='uint8')
+mas_Final = cv.drawContours(mask , [seg_con[-1]] , 0 , (255,255,255) , -1 )
 
 
+final_image = cv.bitwise_and(half_image , half_image , mask=mas_Final)
+
+# k-means 
+
+import matplotlib.pyplot as plt
+
+img2 = cv.imread('batman1.jpeg')
+img2 = cv.cvtColor(img2 , cv.COLOR_BGR2RGB)
+
+
+pixel = img2.reshape((-1,3))
+pixel = np.float32(pixel)
+
+ceraiteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER , 10 , 1.0 )
+k = 3 
+retval , labels , centers = cv.kmeans(pixel, k , None, ceraiteria , 10 , cv.KMEANS_RANDOM_CENTERS )
+
+centers = np.uint8(centers)
+segment_data = centers[labels.flatten()]
+segment_image = segment_data.reshape((img2.shape))
+plt.imshow(segment_image)
+plt.show()
 # show image
-cv.imshow('dilat' , masked)
 
-cv.waitKey()
-cv.destroyAllWindows()
