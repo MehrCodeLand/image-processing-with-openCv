@@ -74,8 +74,6 @@ matches = sorted(matches , key=lambda x:x.distance)
 
 draw_image = cv.drawMatches(batman1 , kpBat1 , batman2 , kpBat2 , matches , None , flags=2)
 
-
-
 # image segmentation 
 
 r , thresh = cv.threshold(half_image , np.mean(half_image) , 255 , cv.THRESH_BINARY_INV)
@@ -87,10 +85,8 @@ mask = np.zeros((half_image.shape[0] , half_image.shape[1]) , dtype='uint8' )
 masked = cv.drawContours(mask , [seg_cnt] , 0 , (255,255,255) , -1)
 
 
-
-
 # show image
-cv.imshow('dilat' , masked)
+cv.imshow('dilat' , erod)
 
 cv.waitKey()
 cv.destroyAllWindows()
